@@ -2,7 +2,6 @@ import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 public class Gerador extends Thread{
-    int tam;
     Semaphore semaphore;
     String texto = "";
     Semaphore pad_padronizador;
