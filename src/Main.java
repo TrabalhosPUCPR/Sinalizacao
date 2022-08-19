@@ -1,6 +1,6 @@
 import java.util.concurrent.Semaphore;
 
-public class main{
+public class Main{
     public static void main(String[] args) {
 
         Semaphore gen_semaphore = new Semaphore(1);
@@ -11,9 +11,9 @@ public class main{
         Padronizador padronizador = new Padronizador(pad_semaphore, gerador, con_semaphore);
         Contador contador = new Contador(con_semaphore, padronizador);
 
-        gerador.run();
-        padronizador.run();
-        contador.run();
+        gerador.start();
+        padronizador.start();
+        contador.start();
 
         try {
             gerador.join();
