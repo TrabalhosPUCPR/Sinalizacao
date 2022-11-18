@@ -2,31 +2,35 @@ import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 public class Contador extends Thread{
-    int cont = 0;
     Padronizador padronizador;
-    Semaphore semaphore;
+    Semaphore semaphore, pad_con_semaphore;
 
-    public Contador(Semaphore semaphore, Padronizador padronizador) {
+    public Contador(Semaphore semaphore, Semaphore pad_con_semaphore, Padronizador padronizador) {
         this.padronizador = padronizador;
         this.semaphore = semaphore;
+        this.pad_con_semaphore = pad_con_semaphore;
     }
 
     @Override
     public void run() {
         try {
-            this.semaphore.acquire();
             char[] vogais = {'A','E','I','O','U'};
-            int cont = 0;
-            for(char i : padronizador.texto.toCharArray()){
-                for(char c : vogais){
-                    if(i == c){
-                        cont++;
-                        break;
+            while (true){
+                this.semaphore.acquire();
+                int cont = 0;
+                padronizador.list_semaphore.acquire();
+                String text = padronizador.bufferTexto.poll();
+                padronizador.list_semaphore.release();
+                for(char i : text.toCharArray()){
+                    for(char c : vogais){
+                        if(i == c){
+                            cont++;
+                            break;
+                        }
                     }
                 }
+                System.out.println("CONTADO: " + cont);
             }
-            System.out.println("Numero de vogais: " + cont);
-            this.semaphore.release();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

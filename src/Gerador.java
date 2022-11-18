@@ -1,35 +1,38 @@
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 public class Gerador extends Thread{
-    Semaphore semaphore;
-    String texto = "";
-    Semaphore pad_padronizador;
+    Semaphore semaphore, pad_semaphore;
+    Semaphore list_semaphore = new Semaphore(1);
+    LinkedList<String> queue = new LinkedList<>();
 
     public Gerador(Semaphore semaphore, Semaphore pad_semaphore) {
         this.semaphore = semaphore;
-        this.pad_padronizador = pad_semaphore;
+        this.pad_semaphore = pad_semaphore;
     }
 
     @Override
     public void run() {
         try {
-            this.semaphore.acquire();
-            this.texto = "";
-            Random generator = new Random();
-            for(int i = 0; i < 10; i++){
-                /*
-                a-z na ascii table e 65-90
-                A-Z na ascii table e 97-122
-                */
-                int r = generator.nextInt(65, 117);
-                if (r > 90) r += 6;
-                this.texto += (char) r;
+            while (true){
+                this.semaphore.acquire();
+                StringBuilder texto = new StringBuilder();
+                Random generator = new Random();
+                for(int i = 0; i < 10; i++){
+                    int r = generator.nextInt(65, 117);
+                    if (r > 90) r += 6;
+                    texto.append((char) r);
+                }
+                list_semaphore.acquire();
+                this.queue.add(texto.toString());
+                list_semaphore.release();
+                this.pad_semaphore.release();
+                this.semaphore.release();
+                System.out.println("GERADO: " + texto);
             }
-            this.semaphore.release();
-            this.pad_padronizador.release();
-
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
